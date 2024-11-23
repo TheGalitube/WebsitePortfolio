@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Video Slideshow</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .title-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .title-container h1 {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #ff0066;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
+            animation: glow 2s ease-in-out infinite alternate;
+            letter-spacing: 2px;
+        }
+
+        @keyframes glow {
+            from {
+                text-shadow: 0 0 10px #ff0066, 0 0 20px #ff0066, 0 0 30px #ff0066, 0 0 40px #ff0066;
+            }
+            to {
+                text-shadow: 0 0 20px #ff3399, 0 0 30px #ff3399, 0 0 40px #ff3399, 0 0 50px #ff3399;
+            }
+        }
+
+        #video-slider {
+            display: flex;
+            overflow-x: auto;
+            gap: 20px;
+            width: 90%;
+            padding: 20px;
+            background-color: #1e1e1e;
+            border-radius: 10px;
+            scrollbar-width: thin;
+            scrollbar-color: #ff0066 #1e1e1e;
+        }
+
+        .video-slide {
+            position: relative;
+            flex: 0 0 auto;
+            width: 100%;
+            max-width: 400px;
+            aspect-ratio: 16 / 9;
+            overflow: hidden;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: transform 0.3s ease-in-out;
+            background-color: #000;
+        }
+
+        .thumbnail-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .thumbnail-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .embed-video {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .video-slide:hover img {
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="title-container">
+        <h1>Top latest Videos</h1>
+    </div>
+    <div id="video-slider"></div>
+
+    <script src="https://apis.google.com/js/api.js"></script>
+    <script>
+        function loadClient() {
+            gapi.client.setApiKey('Paste here your API Key');
+            return gapi.client.load('https://content.googleapis.com/discovery/v1/apis/youtube/v3/rest')
+                .then(() => {
+                    console.log('GAPI client geladen!');
+                    getLatestVideos();
+                }, err => { 
+                    console.error('Fehler beim Laden der GAPI client:', err); 
+                });
+        }
+
+        function getLatestVideos() {
+            gapi.client.youtube.search.list({
+                'part': 'snippet',
+                'channelId': 'Here goes yor channel id',
+                'maxResults': 10,
+                'order': 'date'
+            }).then(response => {
+                const videos = response.result.items;
+                if (videos && videos.length > 0) {
+                    const videoSlider = document.getElementById('video-slider');
+                    videos.forEach(video => {
+                        const videoId = video.id.videoId;
+                        const thumbnailUrl = video.snippet.thumbnails.medium.url;
+                        const title = video.snippet.title;
+
+                        const slide = document.createElement('div');
+                        slide.classList.add('video-slide');
+
+                        slide.innerHTML = `
+                            <div class="thumbnail-container">
+                                <img src="${thumbnailUrl}" alt="${title}">
+                                <iframe class="embed-video" src="https://www.youtube.com/embed/${videoId}?enablejsapi=1&mute=1" frameborder="0" allowfullscreen></iframe>
+                            </div>
+                        `;
+
+                        const iframe = slide.querySelector('.embed-video');
+
+                        slide.addEventListener('mouseenter', () => {
+                            iframe.style.display = 'block';
+                            iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+                        });
+
+                        slide.addEventListener('mouseleave', () => {
+                            iframe.style.display = 'none';
+                            iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+                        });
+
+                        videoSlider.appendChild(slide);
+                    });
+                } else {
+                    console.log('Keine Videos gefunden');
+                }
+            }).catch(err => {
+                console.error('API-Fehler:', err);
+            });
+        }
+
+        gapi.load('client', loadClient);
+    </script>
+</body>
+</html>
