@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>YouTube Video Slideshow</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        /* Previous styles remain the same */
         body {
             font-family: Arial, sans-serif;
             background-color: #121212;
@@ -18,6 +18,45 @@
             margin: 0;
             overflow: hidden;
             padding-top: 40px;
+        }
+
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            background-color: #ff0066;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            box-shadow: 0 4px 15px rgba(255, 0, 102, 0.3);
+            z-index: 1000;
+        }
+
+        .back-button:hover {
+            background-color: #ff1a75;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 0, 102, 0.4);
+        }
+
+        .back-button:active {
+            transform: translateY(0);
+        }
+
+        .back-button i {
+            transition: transform 0.3s ease;
+        }
+
+        .back-button:hover i {
+            transform: translateX(-3px);
         }
 
         .intro-container {
@@ -83,7 +122,6 @@
             }
         }
 
-        /* Rest of your previous styles remain the same */
         #video-slider {
             display: flex;
             overflow-x: auto;
@@ -139,6 +177,11 @@
     </style>
 </head>
 <body>
+    <a href="#" class="back-button">
+        <i data-lucide="arrow-left"></i>
+        Back to Home
+    </a>
+
     <div class="intro-container">
         <h1>Hello, I am TheGalitube</h1>
         <div style="text-align: center;">
@@ -153,7 +196,8 @@
 
     <script src="https://apis.google.com/js/api.js"></script>
     <script>
-        // Updated typing animation
+        lucide.createIcons();
+
         const subtitle = document.querySelector('.subtitle');
         const text = "Java, Web and Python Developer";
         let index = 0;
@@ -172,7 +216,6 @@
             }
 
             if (index === text.length + 1) {
-                // Wait for 20 seconds before starting to delete
                 setTimeout(() => {
                     isDeleting = true;
                     typeWriter();
@@ -189,10 +232,8 @@
             setTimeout(typeWriter, timeout);
         }
 
-        // Start the typing animation
         typeWriter();
 
-        // Your existing YouTube API code remains the same
         function loadClient() {
             gapi.client.setApiKey('YOUR-GOOGLE-API-KEY-HERE');
             return gapi.client.load('https://content.googleapis.com/discovery/v1/apis/youtube/v3/rest')
