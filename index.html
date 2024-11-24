@@ -5,17 +5,54 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>YouTube Video Slideshow</title>
     <style>
+        /* Previous styles remain the same */
         body {
             font-family: Arial, sans-serif;
             background-color: #121212;
             color: #ffffff;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: flex-start;
             align-items: center;
             min-height: 100vh;
             margin: 0;
             overflow: hidden;
+            padding-top: 40px;
+        }
+
+        .intro-container {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .intro-container h1 {
+            font-size: 3.5rem;
+            font-weight: bold;
+            color: #ff0066;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
+            animation: glow 2s ease-in-out infinite alternate;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.8rem;
+            color: #ffffff;
+            min-height: 2em;
+            position: relative;
+            display: inline-block;
+            white-space: pre;
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 2px;
+            height: 1.2em;
+            background-color: #ffffff;
+            margin-left: 2px;
+            vertical-align: middle;
+            animation: blink 0.7s infinite;
         }
 
         .title-container {
@@ -32,6 +69,11 @@
             letter-spacing: 2px;
         }
 
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
         @keyframes glow {
             from {
                 text-shadow: 0 0 10px #ff0066, 0 0 20px #ff0066, 0 0 30px #ff0066, 0 0 40px #ff0066;
@@ -41,6 +83,7 @@
             }
         }
 
+        /* Rest of your previous styles remain the same */
         #video-slider {
             display: flex;
             overflow-x: auto;
@@ -96,6 +139,13 @@
     </style>
 </head>
 <body>
+    <div class="intro-container">
+        <h1>Hello, I am TheGalitube</h1>
+        <div style="text-align: center;">
+            <span class="subtitle"></span><span class="cursor"></span>
+        </div>
+    </div>
+    
     <div class="title-container">
         <h1>Top latest Videos</h1>
     </div>
@@ -103,8 +153,48 @@
 
     <script src="https://apis.google.com/js/api.js"></script>
     <script>
+        // Updated typing animation
+        const subtitle = document.querySelector('.subtitle');
+        const text = "Java, Web and Python Developer";
+        let index = 0;
+        let isDeleting = false;
+        let timeout = 100;
+
+        function typeWriter() {            
+            if (!isDeleting && index <= text.length) {
+                subtitle.textContent = text.slice(0, index);
+                index++;
+                timeout = 100;
+            } else if (isDeleting && index >= 0) {
+                subtitle.textContent = text.slice(0, index);
+                index--;
+                timeout = 50;
+            }
+
+            if (index === text.length + 1) {
+                // Wait for 20 seconds before starting to delete
+                setTimeout(() => {
+                    isDeleting = true;
+                    typeWriter();
+                }, 20000);
+                return;
+            }
+
+            if (index === -1) {
+                isDeleting = false;
+                index = 0;
+                timeout = 100;
+            }
+
+            setTimeout(typeWriter, timeout);
+        }
+
+        // Start the typing animation
+        typeWriter();
+
+        // Your existing YouTube API code remains the same
         function loadClient() {
-            gapi.client.setApiKey('Paste here your API Key');
+            gapi.client.setApiKey('YOUR-GOOGLE-API-KEY-HERE');
             return gapi.client.load('https://content.googleapis.com/discovery/v1/apis/youtube/v3/rest')
                 .then(() => {
                     console.log('GAPI client geladen!');
@@ -117,7 +207,7 @@
         function getLatestVideos() {
             gapi.client.youtube.search.list({
                 'part': 'snippet',
-                'channelId': 'Here goes yor channel id',
+                'channelId': 'YOUR CHANNEL ID HERE',
                 'maxResults': 10,
                 'order': 'date'
             }).then(response => {
